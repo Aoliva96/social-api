@@ -32,14 +32,14 @@ const userSchema = new Schema({
   ],
 });
 
-// Virtual to get total count of user's friends
-userSchema.virtual("friendCount").get(function () {
-  return this.friends.length;
-});
-
 // Virtual to get total count of user's thoughts
 userSchema.virtual("thoughtCount").get(function () {
   return this.thoughts.length;
+});
+
+// Virtual to get total count of user's friends
+userSchema.virtual("friendCount").get(function () {
+  return this.friends.length;
 });
 
 // Set the schema toJSON options
