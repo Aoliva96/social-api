@@ -53,6 +53,40 @@ connection.once("open", async () => {
     }));
     console.table(thoughtOutput);
 
+    // Update user data with thoughts
+    for (let i = 0; i < newThoughts.length; i++) {
+      const thought = newThoughts[i];
+      const user = newUsers.find((user) => user.username === thought.username);
+      user.thoughts.push(thought._id);
+      await user.save();
+    }
+    console.log("Updated user list with thoughts");
+
+    // Update user data with friends
+    for (let i = 0; i < newUsers.length; i++) {
+      const user = newUsers[i];
+      const friends = user.friends.map((username) =>
+        newUsers.find((friend) => friend.username === username)
+      );
+      user.friends = friends.map((friend) => friend._id);
+      await user.save();
+    }
+    console.log("Updated user list with friends");
+
+    // Update thought data with reactions
+    for (let i = 0; i < newThoughts.length; i++) {
+      const thought = newThoughts[i];
+      for (let j = 0; j < thought.reactions.length; j++) {
+        const reaction = thought.reactions[j];
+        const user = newUsers.find(
+          (user) => user.username === reaction.username
+        );
+        thought.reactions[j].userId = user._id;
+      }
+      await thought.save();
+    }
+    console.log("Updated thought list with reactions");
+
     // Log success message
     console.log("All data seeded successfully!");
     process.exit(0);
