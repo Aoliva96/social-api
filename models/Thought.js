@@ -15,6 +15,10 @@ const reactionSchema = new Schema({
     type: String,
     required: [true, "Username is required"],
   },
+  userId: {
+    type: Schema.Types.ObjectId,
+    required: [true, "User ID is required"],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -40,8 +44,8 @@ const thoughtSchema = new Schema({
     required: [true, "Username is required"],
   },
   userId: {
-    type: Schema.Types.String,
-    required: true,
+    type: Schema.Types.ObjectId,
+    required: [true, "User ID is required"],
     ref: "User",
   },
   reactions: [reactionSchema],

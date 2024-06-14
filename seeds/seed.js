@@ -1,6 +1,6 @@
 const connection = require("../config/connection");
 const { User, Thought } = require("../models");
-const { users, thoughts } = require("./data");
+const { users, thoughts, reactions } = require("./data");
 
 connection.on("error", (err) => err);
 
@@ -23,9 +23,9 @@ connection.once("open", async () => {
       await connection.db.dropCollection("thoughts");
       console.log("Thoughts collection dropped");
     }
+    console.log("Attempting to seed database...");
 
     // Seed user data
-    console.log("Attempting to seed database...");
     const newUsers = await User.insertMany(users);
     console.log("Users seeded successfully");
 
@@ -76,12 +76,11 @@ connection.once("open", async () => {
     // Update thought data with reactions
     for (let i = 0; i < newThoughts.length; i++) {
       const thought = newThoughts[i];
-      for (let j = 0; j < thought.reactions.length; j++) {
-        const reaction = thought.reactions[j];
-        const user = newUsers.find(
-          (user) => user.username === reaction.username
-        );
-        thought.reactions[j].userId = user._id;
+      for (let j = 0; j < reactions.length; j++) {
+        const reaction = reactions[j];
+        if (thought.username === reaction.username) {
+          thought.reactions.push(reaction);
+        }
       }
       await thought.save();
     }
