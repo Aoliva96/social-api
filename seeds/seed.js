@@ -24,16 +24,36 @@ connection.once("open", async () => {
       console.log("Thoughts collection dropped");
     }
 
-    // Seed database with new data
+    // Seed user data
     console.log("Attempting to seed database...");
     const newUsers = await User.insertMany(users);
     console.log("Users seeded successfully");
-    console.table(newUsers);
 
+    // Format data for table
+    const userOutput = newUsers.map((user) => ({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      thoughts: user.thoughts,
+      friends: user.friends,
+    }));
+    console.table(userOutput);
+
+    // Seed thought data
     const newThoughts = await Thought.insertMany(thoughts);
     console.log("Thoughts seeded successfully");
-    console.table(newThoughts);
 
+    // Format data for table
+    const thoughtOutput = newThoughts.map((thought) => ({
+      _id: thought._id,
+      thoughtText: thought.thoughtText,
+      username: thought.username,
+      userId: thought.userId,
+      reactions: thought.reactions,
+    }));
+    console.table(thoughtOutput);
+
+    // Log success message
     console.log("All data seeded successfully!");
     process.exit(0);
   } catch (error) {

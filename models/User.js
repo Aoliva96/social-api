@@ -2,6 +2,9 @@ const { Schema, model } = require("mongoose");
 
 // Schema for User document
 const userSchema = new Schema({
+  _id: {
+    type: Schema.Types.String,
+  },
   username: {
     type: String,
     required: [true, "Username is required"],
@@ -26,7 +29,7 @@ const userSchema = new Schema({
   ],
   friends: [
     {
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.String,
       ref: "User",
     },
   ],
