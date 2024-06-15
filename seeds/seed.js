@@ -27,7 +27,7 @@ connection.once("open", async () => {
 
     // Seed user data
     const newUsers = await User.insertMany(users);
-    console.log("Users seeded successfully");
+    console.log("Seeded new user data successfully");
 
     // Format data for table
     const userOutput = newUsers.map((user) => ({
@@ -41,7 +41,7 @@ connection.once("open", async () => {
 
     // Seed thought data
     const newThoughts = await Thought.insertMany(thoughts);
-    console.log("Thoughts seeded successfully");
+    console.log("Seeded new thought data successfully");
 
     // Format data for table
     const thoughtOutput = newThoughts.map((thought) => ({
@@ -60,31 +60,71 @@ connection.once("open", async () => {
       user.thoughts.push(thought._id);
       await user.save();
     }
-    console.log("Updated user list with thoughts");
+    console.log("Assigned random thoughts to each user");
 
-    // Update user data with friends
+    // Format data for table
+    const updatedUserOutput = newUsers.map((user) => ({
+      _id: user._id,
+      username: user.username,
+      thoughts: user.thoughts,
+    }));
+    console.table(updatedUserOutput);
+
+    // Update user data with 2 random friends
     for (let i = 0; i < newUsers.length; i++) {
       const user = newUsers[i];
-      const friends = user.friends.map((username) =>
-        newUsers.find((friend) => friend.username === username)
+      let randomIndex1, randomIndex2;
+      do {
+        randomIndex1 = Math.floor(Math.random() * newUsers.length);
+        randomIndex2 = Math.floor(Math.random() * newUsers.length);
+      } while (
+        randomIndex1 === randomIndex2 ||
+        randomIndex1 === i ||
+        randomIndex2 === i
       );
-      user.friends = friends.map((friend) => friend._id);
+      const friend1 = newUsers[randomIndex1];
+      const friend2 = newUsers[randomIndex2];
+      user.friends.push(friend1._id, friend2._id);
       await user.save();
     }
-    console.log("Updated user list with friends");
+    console.log("Assigned 2 random friends to each user");
+
+    // Format data for table
+    const friendsOutput = newUsers.map((user) => ({
+      _id: user._id,
+      username: user.username,
+      friends: user.friends,
+    }));
+    console.table(friendsOutput);
 
     // Update thought data with reactions
     for (let i = 0; i < newThoughts.length; i++) {
       const thought = newThoughts[i];
-      for (let j = 0; j < reactions.length; j++) {
-        const reaction = reactions[j];
-        if (thought.username === reaction.username) {
-          thought.reactions.push(reaction);
-        }
+      let randomIndex1, randomIndex2;
+      do {
+        randomIndex1 = Math.floor(Math.random() * reactions.length);
+        randomIndex2 = Math.floor(Math.random() * reactions.length);
+      } while (randomIndex1 === randomIndex2);
+      const reaction1 = reactions[randomIndex1];
+      const reaction2 = reactions[randomIndex2];
+      if (thought.username !== reaction1.username) {
+        thought.reactions.push(reaction1);
+      }
+      if (thought.username !== reaction2.username) {
+        thought.reactions.push(reaction2);
       }
       await thought.save();
     }
-    console.log("Updated thought list with reactions");
+    console.log("Assigned 2 random reactions to each thought");
+
+    // Format data for table
+    const updatedThoughtOutput = newThoughts.map((thought) => ({
+      _id: thought._id,
+      thoughtText: thought.thoughtText,
+      username: thought.username,
+      reactions: thought.reactions,
+    }));
+    console.table(updatedThoughtOutput);
 
     // Log success message
     console.log("All data seeded successfully!");
