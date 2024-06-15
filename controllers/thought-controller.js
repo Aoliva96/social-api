@@ -1,26 +1,10 @@
 const { User, Thought } = require("../models");
 
-// Function to get total number of thoughts
-const thoughtCount = async () => {
-  return await Thought.countDocuments();
-};
-
-// Function to get number of reactions for a thought
-const reactionCount = async (thoughtId) => {
-  if (!ObjectId.isValid(thoughtId)) {
-    throw new Error("Invalid thought id");
-  }
-  const thought = await Thought.findById(thoughtId);
-  return thought.reactionCount;
-};
-
 // Export the thought controller
 module.exports = {
   // Get all thoughts
   async getAllThoughts(req, res) {
-    await Thought.find({})
-      .populate({})
-      .select("-__v")
+    await Thought.find()
       .then((thoughtData) => {
         if (!thoughtData) {
           return res.status(404).json({ error: "No thoughts found" });
@@ -29,12 +13,12 @@ module.exports = {
         if (thoughtData.length === 1) {
           resObj = {
             message: `Showing only existing thought`,
-            thought: `${thoughtData}`,
+            thought: thoughtData,
           };
         } else {
           resObj = {
-            message: `Showing all ${thoughtCount()} thoughts`,
-            thoughts: `${thoughtData}`,
+            message: `Showing all ${thoughtData.length} thoughts`,
+            thoughts: thoughtData,
           };
         }
         res.json(resObj);
@@ -44,11 +28,11 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
   // Get single thought by id
   async getSingleThought(req, res) {
     await Thought.findOne({ _id: req.params.thoughtId })
-      .populate({})
-      .select("-__v")
+      .populate("reactions")
       .then((thoughtData) => {
         if (!thoughtData) {
           return res
@@ -56,8 +40,8 @@ module.exports = {
             .json({ error: "No thought found with that id" });
         }
         res.json({
-          message: `Showing thought with id ${req.params.thoughtId}`,
-          thought: `${thoughtData}`,
+          message: `Showing thought with id ${thoughtData._id}`,
+          thought: thoughtData,
         });
       })
       .catch((err) => {
@@ -65,10 +49,20 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
   // Create new thought and add to user's thoughts array
+  /* Required fields for request body:
+  {
+    "thoughtText": "This is a new thought",
+    "username": "newUser", ( username of thought author )
+    "userId": "60a91c4f3d2e7b0015f5f0b6" ( _id of thought author )
+  } 
+  */
   async createThought(req, res) {
+    let thoughtData;
     await Thought.create(req.body)
-      .then((thoughtData) => {
+      .then((thoughtRes) => {
+        thoughtData = thoughtRes;
         return User.findOneAndUpdate(
           { _id: req.body.userId },
           { $push: { thoughts: thoughtData._id } },
@@ -80,8 +74,8 @@ module.exports = {
           return res.status(404).json({ error: "No user found with that id" });
         }
         res.json({
-          message: `New thought created with id ${thoughtData._id}, attributed to user with id ${req.body.userId}`,
-          thought: `${thoughtData}`,
+          message: `New thought created with id ${thoughtData._id}, attributed to user ${thoughtData.username}`,
+          thought: thoughtData,
         });
       })
       .catch((err) => {
@@ -89,6 +83,7 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
   // Update thought by id
   async updateThought(req, res) {
     await Thought.findOneAndUpdate({ _id: req.params.thoughtId }, req.body, {
@@ -103,7 +98,7 @@ module.exports = {
         }
         res.json({
           message: `Updated thought with id ${req.params.thoughtId}`,
-          updated: `${thoughtData}`,
+          updated: thoughtData,
         });
       })
       .catch((err) => {
@@ -111,6 +106,7 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
   // Delete thought by id and remove from user's thoughts array
   async deleteThought(req, res) {
     await Thought.findOneAndDelete({ _id: req.params.thoughtId })
@@ -123,7 +119,7 @@ module.exports = {
         await User.findOneAndUpdate(
           { thoughts: req.params.thoughtId },
           { $pull: { thoughts: req.params.thoughtId } },
-          { new: true, runValidators: true }
+          { new: true }
         )
           .then((userData) => {
             if (!userData) {
@@ -132,7 +128,7 @@ module.exports = {
                 .json({ error: "No user found with that id" });
             }
             res.json({
-              message: `Deleted thought with id ${req.params.thoughtId} and updated list for user with id ${userData._id}`,
+              message: `Deleted thought with id ${req.params.thoughtId}, updated thought list for user ${userData.username}`,
             });
           })
           .catch((err) => {
@@ -145,7 +141,15 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
   // Add reaction to thought
+  /* Required fields for request body:
+  {
+    "reactionBody": "This is a new reaction",
+    "username": "newUser", ( username of reaction author )
+    "userId": "60a91c4f3d2e7b0015f5f0b6" ( _id of reaction author )
+  }
+  */
   async addReaction(req, res) {
     await Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
@@ -159,8 +163,8 @@ module.exports = {
             .json({ error: "No thought found with that id" });
         }
         res.json({
-          message: `Added reaction to thought with id ${req.params.thoughtId}`,
-          updated: `${thoughtData}`,
+          message: `Added reaction to thought with id ${req.params.thoughtId}, new total: ${thoughtData.reactionCount}`,
+          updated: thoughtData,
         });
       })
       .catch((err) => {
@@ -168,12 +172,13 @@ module.exports = {
         res.status(500).json(err);
       });
   },
+
   // Remove reaction from thought
   async removeReaction(req, res) {
     await Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $pull: { reactions: { reactionId: req.params.reactionId } } },
-      { new: true, runValidators: true }
+      { $pull: { reactions: { _id: req.params.reactionId } } },
+      { new: true }
     )
       .then((thoughtData) => {
         if (!thoughtData) {
@@ -182,8 +187,8 @@ module.exports = {
             .json({ error: "No thought found with that id" });
         }
         res.json({
-          message: `Removed reaction from thought with id ${req.params.thoughtId}`,
-          updated: `${thoughtData}`,
+          message: `Removed reaction from thought with id ${req.params.thoughtId}, new total: ${thoughtData.reactionCount}`,
+          updated: thoughtData,
         });
       })
       .catch((err) => {
