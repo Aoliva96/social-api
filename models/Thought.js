@@ -1,4 +1,4 @@
-const { Schema, model, Types } = require("mongoose");
+const { Schema, model } = require("mongoose");
 
 // Schema for Reaction subdocument
 const reactionSchema = new Schema({
@@ -62,14 +62,15 @@ thoughtSchema.set("toJSON", {
   virtuals: true,
   getters: true,
   transform: (doc, ret) => {
+    delete ret.__v;
     delete ret.id;
     delete ret.userId;
   },
 });
-
 reactionSchema.set("toJSON", {
   getters: true,
   transform: (doc, ret) => {
+    delete ret.__v;
     delete ret.id;
     delete ret.userId;
   },

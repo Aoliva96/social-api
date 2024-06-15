@@ -1,28 +1,4 @@
-// const { ObjectId } = require("mongoose").Types;
 const { User, Thought } = require("../models");
-
-// // Function to get total number of users
-// const userCount = async () => {
-//   return await User.countDocuments();
-// };
-
-// // Function to get number of thoughts for a user
-// const thoughtCount = async (userId) => {
-//   if (!ObjectId.isValid(userId)) {
-//     throw new Error("Invalid user id");
-//   }
-//   const user = await User.findById(userId);
-//   return user.thoughtCount;
-// };
-
-// // Function to get number of friends for a user
-// const friendCount = async (userId) => {
-//   if (!ObjectId.isValid(userId)) {
-//     throw new Error("Invalid user id");
-//   }
-//   const user = await User.findById(userId);
-//   return user.friendCount;
-// };
 
 // Export the user controller
 module.exports = {
@@ -59,18 +35,10 @@ module.exports = {
       .populate({
         path: "thoughts",
         model: "Thought",
-        populate: {
-          path: "reactions",
-          model: "Thought",
-        },
       })
       .populate({
         path: "friends",
         model: "User",
-        populate: {
-          path: "thoughts",
-          model: "Thought",
-        },
       })
       .then((userData) => {
         if (!userData) {
@@ -88,6 +56,12 @@ module.exports = {
   },
 
   // Create new user
+  /* Required fields for request body:
+  {
+    "username": "newUser",
+    "email": "newuser@example.com",
+  }
+  */
   async createUser(req, res) {
     await User.create(req.body)
       .then((userData) =>
@@ -127,7 +101,7 @@ module.exports = {
         if (userData.thoughts.length) {
           await Thought.deleteMany({ _id: { $in: userData.thoughts } });
           res.json({
-            message: `Deleted user ${userData.username}, and ${userData.thoughtCount} associated thought(s)`,
+            message: `Deleted user ${userData.username} and ${userData.thoughtCount} associated thought(s)`,
             deleted: userData,
           });
         } else {
@@ -159,25 +133,6 @@ module.exports = {
       updated: userData,
     });
   },
-  // async addFriend(req, res) {
-  //   await User.findOneAndUpdate(
-  //     { _id: req.params.userId },
-  //     { $addToSet: { friends: req.params.friendId } },
-  //     { new: true, runValidators: true }
-  //   )
-  //     .then((userData) => {
-  //       if (!userData) {
-  //         return res.status(404).json({ error: "No user found with that id" });
-  //       }
-  //       res.json({
-  //         message: `Added new friend ${
-  //           req.params.friendId
-  //         } to list, new total: ${friendCount(req.params.userId)}`,
-  //         updated: `${userData}`,
-  //       });
-  //     })
-  //     .catch((err) => res.status(500).json(err));
-  // },
 
   // Remove friend from user's friend list
   async removeFriend(req, res) {
@@ -200,23 +155,4 @@ module.exports = {
       updated: userData,
     });
   },
-  // async removeFriend(req, res) {
-  //   await User.findOneAndUpdate(
-  //     { _id: req.params.userId },
-  //     { $pull: { friends: req.params.friendId } },
-  //     { new: true }
-  //   )
-  //     .then((userData) => {
-  //       if (!userData) {
-  //         return res.status(404).json({ error: "No user found with that id" });
-  //       }
-  //       res.json({
-  //         message: `Removed friend with id ${
-  //           req.params.friendId
-  //         } from list, new total: ${friendCount(req.params.userId)}`,
-  //         updated: `${userData}`,
-  //       });
-  //     })
-  //     .catch((err) => res.status(500).json(err));
-  // },
 };

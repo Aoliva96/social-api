@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed": "node seeds/seed.js"
+    "seed": "node seeds/seed.js",
+    "freshstart": "node seeds/seed.js && node index.js",
+    "freshstart-dev": "node seeds/seed.js && nodemon index.js"
   },
   "author": "https://github.com/Aoliva96",
   "license": "MIT",

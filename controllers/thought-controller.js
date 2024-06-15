@@ -50,7 +50,7 @@ module.exports = {
       });
   },
 
-  // Create new thought and add to user's thoughts array
+  // Create new thought and update user data
   /* Required fields for request body:
   {
     "thoughtText": "This is a new thought",
@@ -74,7 +74,7 @@ module.exports = {
           return res.status(404).json({ error: "No user found with that id" });
         }
         res.json({
-          message: `New thought created with id ${thoughtData._id}, attributed to user ${thoughtData.username}`,
+          message: `New thought with id ${thoughtData._id} created for user ${thoughtData.username}`,
           thought: thoughtData,
         });
       })
@@ -107,7 +107,7 @@ module.exports = {
       });
   },
 
-  // Delete thought by id and remove from user's thoughts array
+  // Delete thought by id and update user data
   async deleteThought(req, res) {
     await Thought.findOneAndDelete({ _id: req.params.thoughtId })
       .then(async (thoughtData) => {
@@ -128,7 +128,7 @@ module.exports = {
                 .json({ error: "No user found with that id" });
             }
             res.json({
-              message: `Deleted thought with id ${req.params.thoughtId}, updated thought list for user ${userData.username}`,
+              message: `Deleted thought with id ${req.params.thoughtId} for user ${userData.username}`,
             });
           })
           .catch((err) => {

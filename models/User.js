@@ -2,9 +2,6 @@ const { Schema, model } = require("mongoose");
 
 // Schema for User document
 const userSchema = new Schema({
-  _id: {
-    type: Schema.Types.ObjectId,
-  },
   username: {
     type: String,
     required: [true, "Username is required"],
@@ -49,6 +46,10 @@ userSchema.virtual("friendCount").get(function () {
 userSchema.set("toJSON", {
   virtuals: true,
   getters: true,
+  transform: (doc, ret) => {
+    delete ret.__v;
+    delete ret.id;
+  },
 });
 
 const User = model("User", userSchema);
