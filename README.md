@@ -16,7 +16,7 @@ A study in building a social network API that utilizes Express.js for routing, a
 
 ## Introduction
 
-( intro text )
+For this project, I was tasked with creating a backend API that handles the routing of data for hypothetical social networking application. Since this project does not have a frontend UI, see the deployment section of this README for a demo detailing its functionality.
 
 ## Problem
 
@@ -34,39 +34,36 @@ The client provided me with the following requirements for this project's desire
 
 ## Solution
 
-I rectified the above problems in the following way:
+I addressed the above problems in the following way:
 
-- ( list actions taken to solve above problem. )
--
--
-
-See below for a screenshot of the project:
-
-![Screenshot of deployed project](#)
+- I developed the server handling and data routing using Express.
+- I developed the MongoDB database and Mongoose ORM.
+- I created seed data and related scripts to populate the database with data, using schema models to define its structure.
+- I added extra functionality for deleting users, which propagates the deletion out to that user's 'Thoughts' as well.
 
 ## Deployment
 
-This project does not have a frontend UI, being purely an API intended for use in other projects. See below for the GitHub repository and a short demo video showcasing the API's functionality with Insomnia.
+This project does not have a frontend UI, being purely an API intended for use in other projects. See below for the GitHub repository and a short demo video of me showcasing the API's functionality with Insomnia.
 
 [Link to the GitHub repo for this project](https://github.com/Aoliva96/social-api)
 
-[Link to the project demo video](#)
+[Link to the project demo video](https://drive.google.com/file/d/1785a6aV-FwBQsWAfhkgwrWAJN_EElPSU/view?usp=sharing)
 
 ## Collaborators
 
-I collaborated with ( student / instructor names ) on the following areas of this project:
+While I did not collaborate with anyone on this project, I did utilize GitHub Copilot for illustrating code concepts and providing bugfix suggestions.
 
 ## Resources
 
 See the links below to see some of the resources I used for this project:
 
-[link title placeholder](#)
+[Documents - MongoDB Manual v7.0](https://www.mongodb.com/docs/manual/core/document/#the-id-field)
 
-[link title placeholder](#)
+[BSON Types - MongoDB Manual v7.0](https://www.mongodb.com/docs/manual/reference/bson-types/#std-label-objectid)
 
-[link title placeholder](#)
+[do...while - JavaScript | MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/do...while)
 
-I also referenced ( in class activity names/numbers ).
+I also referenced the week 18 mini-project solution while constructing the basic file structure for this project.
 
 ## License
 
